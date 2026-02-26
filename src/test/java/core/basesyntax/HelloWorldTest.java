@@ -14,11 +14,12 @@ import org.junit.jupiter.api.Test;
 
 public class HelloWorldTest {
     private static RegistrationService service = new RegistrationServiceImpl();
-    private static StorageDao storageDao = new StorageDaoImpl();
+    private StorageDao storageDao = new StorageDaoImpl();
 
     @BeforeEach
     void setUp() {
         service = new RegistrationServiceImpl();
+        storageDao = new StorageDaoImpl();
     }
 
     //null block
@@ -95,6 +96,18 @@ public class HelloWorldTest {
     }
 
     @Test
+    void negativeAge_notOk() {
+        User user = new User();
+        user.setPassword("111112");
+        user.setAge(-11);
+        user.setLogin("s1mple");
+
+        assertThrows(InvalidDataException.class,() -> service.register(user));
+    }
+
+
+    //other things
+    @Test
     void register_duplicateLogin_notOk() {
 
         User existing = new User();
@@ -111,6 +124,17 @@ public class HelloWorldTest {
 
         assertThrows(InvalidDataException.class,
                 () -> service.register(newUser));
+    }
+
+    @Test
+    void successfulPlacement_Ok() {
+        User expected = new User();
+        expected.setLogin("frozen");
+        expected.setPassword("123456");
+        expected.setAge(20);
+
+        User actual = storageDao.add(expected);
+        assertEquals(expected,actual);
     }
 
 }
