@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import core.basesyntax.dao.StorageDao;
 import core.basesyntax.dao.StorageDaoImpl;
+import core.basesyntax.db.Storage;
 import core.basesyntax.exception.InvalidDataException;
 import core.basesyntax.model.User;
 import core.basesyntax.service.RegistrationService;
@@ -13,25 +14,25 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class HelloWorldTest {
-    private static RegistrationService service = new RegistrationServiceImpl();
+    private RegistrationService service = new RegistrationServiceImpl();
     private StorageDao storageDao = new StorageDaoImpl();
 
     @BeforeEach
     void setUp() {
+        Storage.people.clear();
         service = new RegistrationServiceImpl();
-        storageDao = new StorageDaoImpl();
     }
 
     //null block
     @Test
-    public void userNull_NotOK() {
+    public void register_userNull_NotOK() {
 
         assertThrows(InvalidDataException.class, () -> service.register(null));
 
     }
 
     @Test
-    void nullLogin_notOk() {
+    void register_nullLogin_notOk() {
         User user = new User();
         user.setPassword("123456");
         user.setAge(20);
@@ -42,7 +43,7 @@ public class HelloWorldTest {
 
     //password block
     @Test
-    void nullPassword_notOk() {
+    void register_nullPassword_notOk() {
         User user = new User();
         user.setLogin("s1mple");
         user.setAge(19);
@@ -52,7 +53,7 @@ public class HelloWorldTest {
     }
 
     @Test
-    void shortPassword_notOk() {
+    void register_shortPassword_notOk() {
         User user = new User();
         user.setPassword("s1ma");
         user.setAge(19);
@@ -63,7 +64,7 @@ public class HelloWorldTest {
     }
 
     @Test
-    void edgePassword_notOk() {
+    void register_edgePassword_notOk() {
         User user = new User();
         user.setPassword("111112");
         user.setAge(19);
@@ -75,7 +76,7 @@ public class HelloWorldTest {
 
     //age block
     @Test
-    void underAge_notOk() {
+    void register_underAge_notOk() {
         User user = new User();
         user.setPassword("111112");
         user.setAge(15);
@@ -86,7 +87,7 @@ public class HelloWorldTest {
     }
 
     @Test
-    void edgeAge_notOk() {
+    void register_edgeAge_notOk() {
         User user = new User();
         user.setPassword("111112");
         user.setAge(18);
@@ -96,7 +97,7 @@ public class HelloWorldTest {
     }
 
     @Test
-    void negativeAge_notOk() {
+    void register_negativeAge_notOk() {
         User user = new User();
         user.setPassword("111112");
         user.setAge(-11);
@@ -127,14 +128,15 @@ public class HelloWorldTest {
     }
 
     @Test
-    void successfulPlacement_Ok() {
-        User expected = new User();
-        expected.setLogin("frozen");
-        expected.setPassword("123456");
-        expected.setAge(20);
+    void register_successfulPlacement_Ok() {
+        User user = new User();
+        user.setLogin("frozen");
+        user.setPassword("123456");
+        user.setAge(20);
 
-        User actual = storageDao.add(expected);
-        assertEquals(expected,actual);
+        User registered = service.register(user);
+        assertEquals(user, registered);
+        assertEquals(user, new StorageDaoImpl().get("frozen"));
     }
 
 }
